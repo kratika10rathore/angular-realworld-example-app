@@ -3,16 +3,14 @@ pipeline {
   
  stages {
      stage('Git Checkout'){
-         steps{
-            checkout changelog: false, poll: false, scm: [$class: 'GitSCM',
-            branches: [[name: '*/master']], 
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [], submoduleCfg: [],
-            userRemoteConfigs: [[credentialsId: 'github', 
-            url: 'https://github.com/kratika10rathore/angular-realworld-example-app.git']]]
-         }
- }
-      stage("Build"){
+         steps { 
+                echo "getting the code from github" 
+                git credentialsId: 'Github', url: 'https://github.com/kratika10rathore/angular-realworld-example-app.git'
+                
+            }
+        }
+           
+      stage("Build App"){
          steps{
             sh 'npm install'
             sh 'ng build'
@@ -29,7 +27,13 @@ pipeline {
             }
         }
      
-      
+       stage("Pulling Docker image and running container using ansible"){
+      steps{
+        sh 'which ansible'
+        sh 'ansible --version'
+        ansiblePlaybook credentialsId: 'aws-pem', disableHostKeyChecking: true, installation: 'Ansible', playbook: 'ansible-playbook.yml'
+        }
+   }
   }
         
  }
