@@ -1,0 +1,13 @@
+- name: Docker image pull and run
+  hosts: server1
+  become: true
+  vars:
+    imagen: "{{ lookup('env','myimage') }}" 
+  tasks:
+    - name: Pull Docker image
+      docker_image:
+        name: kratika1/dockerclass:{{imagen}}
+        source: pull
+
+    - name: Create containers
+      command: docker run -p 81:80 -d kratika1/dockerclass:{{imagen}}
