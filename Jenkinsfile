@@ -1,8 +1,6 @@
 pipeline {
  agent any
-  environment {
-    dockerHome = tool 'Docker'
-}
+  
  stages {
      stage('Git Checkout'){
          steps{
@@ -20,22 +18,17 @@ pipeline {
             sh 'ng build'
        }
  }
-      stage("Docker Image Build"){
+      stage("Building image, tagging and pushing it to docker hub"){
          steps{
-            sh "${dockerHome}/bin/docker ps"
-            sh "${dockerHome}/bin/docker  --version"
-            sh "${dockerHome}/bin/docker build -t kratika1/Angular:${BUILD_NUMBER} ."
-
- }
- }
-     stage("Docker Image Push"){
-	   steps{
-           withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'password', usernameVariable: 'username')]) {
-           sh "${dockerHome}/bin/docker login -u ${username} -p ${password}"
-           }
-           sh "${dockerHome}/bin/docker push kratika1/Angular.${BUILD_NUMBER}"
-		}
-}
+            sh "sudo docker build -t $myimage ."
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'password', usernameVariable: 'username')]) {
+                sh "sudo docker login -u ${username} -p ${password}"
+} 
+               sh "sudo docker tag $myimage kratika1/dockerclass:$tagname"
+               sh "sudo docker push kratika1/dockerclass:$tagname"
+            }
+        }
+     
       
   }
         
